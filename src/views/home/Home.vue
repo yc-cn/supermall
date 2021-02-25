@@ -35,10 +35,9 @@
   import TabControl from "@/components/content/tabControl/TabControl";
   import GoodsList from "@/components/content/goods/GoodsList";
   import Scroll from "@/components/common/scroll/Scroll";
-  import BackTop from "@/components/content/backTop/BackTop";
 
   import {getHomeMUltidata, getHomeGoods} from "network/home";
-  import {debounce} from "common/utils"
+  import {itemListenerMixin, backTopMixin} from "@/common/mixin";
 
 
   export default {
@@ -51,8 +50,8 @@
       NavBar,
       TabControl,
       GoodsList,
-      BackTop,
     },
+    mixins: [itemListenerMixin, backTopMixin],
     data() {
       return {
         banners: [],
@@ -63,10 +62,9 @@
           'sell': {page: 0, list: []}
         },
         currentType: 'pop',
-        isShowBackTop: false,
         tabOffsetTop: 0,
         isTabFixed: false,
-        saveY: 0
+        saveY: 0,
       }
     },
     computed: {
@@ -82,7 +80,11 @@
       this.$refs.scroll.scrollTo(0, this.saveY, 0)
     },
     deactivated() {
+      //1.保存Y值
       this.saveY = this.$refs.scroll.getScrollY()
+
+      //2.取消全局事件的监听
+      this.$bus.$off('itemImageLoad', this.itemImgListener)
     },
     created() {
       // 1.请求多个数据
@@ -95,11 +97,7 @@
 
     },
     mounted() {
-      //1.图片加载完成事件监听
-      const refresh = debounce(this.$refs.scroll.refresh, 50)
-      this.$bus.$on('itemImageLoad', () => {
-        refresh()
-      })
+
     },
     methods: {
       //事件监听相关方法
@@ -116,10 +114,6 @@
         this.$refs.tabControl2.currentIndex = index;
       },
 
-      //返回顶部
-      backClick() {
-        this.$refs.scroll.scrollTo(0, 0)
-      },
       contentScroll(position) {
         //1.判断BackTop是否显示
         this.isShowBackTop = -position.y > 1000

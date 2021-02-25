@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item" @click="itemClick">
-    <img :src="goodsItem.show.img" @load="imageLoad" alt="">
+    <img :src="showImage" @load="imageLoad" alt="">
     <div class="goods-info">
       <p>{{goodsItem.title}}</p>
       <span class="price">{{goodsItem.price}}</span>
@@ -10,25 +10,43 @@
 </template>
 
 <script>
-export default {
-  name: "GoofsListItem",
-  props: {
-    goodsItem: {
-      type: Object,
-      default() {
-        return {}
+  export default {
+    name: "GoofsListItem",
+    props: {
+      goodsItem: {
+        type: Object,
+        default() {
+          return {}
+        }
+      },
+    },
+    computed: {
+      showImage() {
+        return this.goodsItem.image || this.goodsItem.show.img
       }
     },
-  },
-  methods: {
-    imageLoad() {
-      this.$bus.$emit('itemImageLoad')
-    },
-    itemClick() {
-      this.$router.push('/detail/' + this.goodsItem.iid)
+    methods: {
+      imageLoad() {
+        this.$bus.$emit('itemImageLoad')
+
+        // if(this.$route.path.indexOf('/home')){
+        //   this.$bus.$emit('itemImageLoad')
+        // }else if (this.$route.path.indexOf('/detail')) {
+        //   this.$bus.$emit('detailItemImageLoad')
+        // }
+
+      },
+      itemClick() {
+        // this.$router.push('/detail/' + this.goodsItem.iid)
+        this.$router.push({
+          path: '/detail',
+          query: {
+            iid: this.goodsItem.iid
+          }
+        })
+      }
     }
   }
-}
 </script>
 
 <style scoped>
