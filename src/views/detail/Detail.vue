@@ -11,9 +11,10 @@
       <detail-comment-info ref="comment" :comment-info="commentInfo"/>
       <goods-list ref="recommend" :goods="recommends"/>
     </scroll>
-    <detail-bottom-bar @addCart="addCart"/>
+    <detail-bottom-bar class="detail-bottom" @addCart="addCart"/>
 
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
+
   </div>
 </template>
 
@@ -171,7 +172,18 @@
         product.iid = this.iid;
 
         //2.将商品添加到购物车
-        this.$store.dispatch('addCart', product)
+        //2.1 promise
+        this.$store.dispatch('addCart', product).then(res => {
+          // this.show = true;
+          // this.message = res;
+          //
+          // setTimeout(() => {
+          //   this.show = false;
+          //   this.message = ''
+          // }, 1500)
+          this.$toast.show(res, 1500)
+        })
+        //2.2 mapActions
       },
     }
   }
@@ -195,4 +207,5 @@
     height: calc(100% - 93px);
     overflow: hidden;
   }
+
 </style>

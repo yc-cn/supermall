@@ -29,11 +29,12 @@
 
 <style scoped>
   .cart-list {
-    height: 100vh
+    height: calc(100% - 130px);
+    overflow: hidden;
   }
 
   .content {
-    height: calc(100% - 93px);
+    height: calc(100%);
     overflow: hidden;
   }
 </style>
