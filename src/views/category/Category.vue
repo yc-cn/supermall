@@ -5,6 +5,9 @@
     </nav-bar>
     <div class="content">
       <tab-menu :categories="categories" @selectItem="selectItem"></tab-menu>
+      <scroll id="tab-content">
+        <tab-content-category :subcategories="showSubcategory"/>
+      </scroll>
     </div>
   </div>
 </template>
@@ -13,32 +16,67 @@
 
   import NavBar from "@/components/common/navbar/NavBar";
 
-  import {getCategory} from "@/network/Caregory";
   import TabMenu from "@/views/category/childComps/TabMenu";
+  import TabContentCategory from "@/views/category/childComps/TabContentCategory";
+
+  import Scroll from "@/components/common/scroll/Scroll";
+
+  import {getCategory, getSubcategory} from "@/network/category";
 
   export default {
     name: "Category",
     components: {
       TabMenu,
-      NavBar
+      TabContentCategory,
+      NavBar,
+      Scroll
     },
     data() {
       return {
-        categories: []
+        categories: [],
+        categoryData: {
+
+        },
+        currentIndex: -1
       }
     },
     created() {
       //1.请求分类数据
       this._getCategory()
     },
+    computed: {
+      showSubcategory() {
+        if (this.currentIndex === -1) return {}
+        return this.categoryData[this.currentIndex].subcategories
+      },
+    },
     methods: {
       _getCategory() {
         getCategory().then(res => {
           this.categories = res.data.category.list;
+
+          for (let i = 0; i < this.categories.length; i++) {
+            this.categoryData[i] = {
+              subcategories: {},
+            }
+          }
+
+          this._getSubcategory(0)
         })
       },
-      selectItem() {
-        console.log(1)
+      _getSubcategory(index) {
+        this.currentIndex = index;
+
+        const maitKey = this.categories[index].maitKey;
+
+        getSubcategory(maitKey).then(res => {
+          this.categoryData[index].subcategories = res.data;
+          this.categoryData = {...this.categoryData};
+        })
+
+      },
+      selectItem(index) {
+        this._getSubcategory(index)
       }
     }
 
@@ -64,5 +102,11 @@
     bottom: 49px;
 
     display: flex;
+  }
+
+  #tab-content {
+    height: 100%;
+    flex: 1;
+    overflow: hidden;
   }
 </style>
